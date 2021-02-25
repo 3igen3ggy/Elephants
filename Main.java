@@ -5,11 +5,10 @@ import java.util.ArrayList;
 public class Main {
 
 	static int m, n;
-	
-	static int[] mass = {2400, 2000, 1200, 2400, 1600, 4000};
-	static int[] inSetting = {1, 4, 5, 3, 6, 2};
-	static int[] outSetting = {5, 3, 2, 4, 6, 1};
-	static int d = mass.length;
+	static int d = 10;
+	static int[] mass = {3015, 4728, 4802, 4361, 135, 4444, 4313, 1413, 4581, 546};
+	static int[] inSetting = {3, 10, 1, 8, 9, 4, 2, 7, 6, 5};
+	static int[] outSetting = {4, 9, 5, 3, 1, 6, 10, 7, 8, 2};
 	
 	public static void main(String[] args) {
 		
@@ -23,11 +22,11 @@ public class Main {
 		
 		int[] massSorted = bubbleSort(mass);
 		int counter = countTrue(validatePos);
-		int i = 0;
+		
 		int iteration = 0;
 		int effort = 0;
-		System.out.println(Arrays.toString(inSetting));
-		System.out.println(Arrays.toString(outSetting));
+		System.out.println("in: " + Arrays.toString(inSetting));
+		System.out.println("out: " + Arrays.toString(outSetting));
 		System.out.println(Arrays.toString(mass));
 		System.out.println(Arrays.toString(massSorted));
 		
@@ -39,13 +38,13 @@ public class Main {
 		System.out.println(Arrays.toString(validatePos));
 		System.out.println("Iteration: " + iteration + ", Counter: " + counter + ", Effort: " + effort);
 		
+		//i: the lightest unsorted elephant index
+		int i = 0;
+		
 		while (counter < d) {
 			iteration++;
+			System.out.println("i: " + i);
 			
-			if (validatePos[finder(inSetting, finder(mass, massSorted[i]) + 1)]) {
-			i++;
-			
-			}
 			
 			int light = finder(mass, massSorted[i]) + 1;
 			int lightIndex = finder(inSetting, light);
@@ -53,7 +52,12 @@ public class Main {
 			int valid = outSetting[lightIndex];
 			int validIndex = finder(inSetting, valid);
 			
+	
+			
 			effort += mass[light - 1] + mass[valid - 1];
+			
+			System.out.println("light: " + light + ", lightIndex: " + lightIndex + ", mass: " + mass[light - 1]);
+			System.out.println("valid: " + valid + ", validIndex: " + validIndex + ", mass: " + mass[valid - 1]);
 			inSetting = changeOrder(inSetting, lightIndex, validIndex);
 			
 			
