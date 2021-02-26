@@ -1,38 +1,51 @@
 import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class Main {
 
-	static int m, n;
-	static int d = 6;
-	static int[] mass = {2400, 2000, 1200, 2400, 1600, 4000};
-	static int min = min(mass);
-	static int[] inSetting = {1, 4, 5, 3, 6, 2};
-	static int[] outSetting = {5, 3, 2, 4, 6, 1};
-	static ArrayList<Integer> cycl = new ArrayList<Integer>();
-	static ArrayList<Integer> cyclAux = new ArrayList<Integer>();
-	static ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
 
-	//permutacje
-	static int[] perm = permutations(inSetting, outSetting);
+
 	
-	
-	
+
+
+
+
 	
 	public static void main(String[] args) {
+		
+
+		ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
+
+		int[][] table = importFromFile("slo1.in");
+		
+		int d = table[0][0];
+		int[] mass = table[1];
+		int[] inSetting = table[2];
+		int[] outSetting = table[3];
+		
+		
+		int min = min(mass);
+		//permutacje
+		 int[] perm = permutations(inSetting, outSetting);
+		
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		int costSum = 0;
 		
-		System.out.println(Arrays.toString(perm));
+		System.out.println("Permutations: " + Arrays.toString(perm));
 		
 		//rozklad na cykle proste
 		
-		ArrayList<ArrayList<Integer>> allCycl = crCycles();
+		allCycl = crCycles(perm, d);
 		System.out.println(allCycl);
 		
 		for (int i = 0; i < allCycl.size(); i++) {
 			
-			costSum += cost(allCycl.get(i));
+			costSum += cost(allCycl.get(i), mass);
 			
 		}
 		System.out.println(costSum);
@@ -40,10 +53,79 @@ public class Main {
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 	
-	public static int cost(ArrayList<Integer> cycl) {
+	public static int[][] importFromFile(String filename) {
+		String workingDirectory = System.getProperty("user.dir") + "/src/";
+		String file = workingDirectory + filename;
+		String line = "";
+	
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			
+			//generate matrix for imported values
+			int[][] table = new int [4][];
+			
+			//get first line (number of elephants)
+			line = br.readLine();
+			
+			int[] dMatrix = {Integer.parseInt(line)};
+			table[0] = dMatrix;
+			int d = table[0][0];
+			
+			//get second line (masses)
+			line = br.readLine();
+			int[] massAux = new int[d];
+			String[] strMass = line.split(" ");
+			
+			for (int i = 0; i < d; i++) {
+				massAux[i] = Integer.parseInt(strMass[i]);
+			}
+			int[] mass = Arrays.copyOf(massAux, d);
+			table[1] = mass;
+
+			
+			//get third line (initial setting)
+			line = br.readLine();
+			int[] inSettingAux = new int[d];
+			String[] strInSetting = line.split(" ");
+			
+			for (int i = 0; i < d; i++) {
+				inSettingAux[i] = Integer.parseInt(strInSetting[i]);
+			}
+			int[] inSetting = Arrays.copyOf(inSettingAux, d);
+			table[2] = inSetting;
+
+			
+			//get fourth line (final setting)
+			line = br.readLine();
+			int[] outSettingAux = new int[d];
+			String[] strOutSetting = line.split(" ");
+			
+			for (int i = 0; i < d; i++) {
+				outSettingAux[i] = Integer.parseInt(strOutSetting[i]);
+			}
+			int[] outSetting = Arrays.copyOf(outSettingAux, d);
+			table[3] = outSetting;
+					
+			System.out.println("d: " + d);
+			System.out.println("Masses: " + Arrays.toString(mass));
+			System.out.println("In: " + Arrays.toString(inSetting));
+			System.out.println("Out: " + Arrays.toString(outSetting));
+			
+			return table;
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int[][] table = new int[1][1];
+		return table;
+	}
+	
+	public static int cost(ArrayList<Integer> cycl, int[] mass) {
 		
-		int method1 = method1Cost(cycl);
-		int method2 = method2Cost(cycl);
+		int method1 = method1Cost(cycl, mass);
+		int method2 = method2Cost(cycl, mass);
 		
 		if (method1 < method2) {
 			return method1;
@@ -52,12 +134,13 @@ public class Main {
 		}	
 	}
 	
-	public static int method1Cost (ArrayList<Integer> cycl) {
-		return massOfCycle(cycl) + (cycl.size() - 2) * minInCycle(cycl);
+	public static int method1Cost (ArrayList<Integer> cycl, int[] mass) {
+		return massOfCycle(cycl, mass) + (cycl.size() - 2) * minInCycle(cycl, mass);
 	}
 	
-	public static int method2Cost (ArrayList<Integer> cycl) {
-		return massOfCycle(cycl) + minInCycle(cycl) + (cycl.size() + 1) * min;
+	public static int method2Cost (ArrayList<Integer> cycl, int[] mass) {
+		int min = minValue(mass);
+		return massOfCycle(cycl, mass) + minInCycle(cycl, mass) + (cycl.size() + 1) * min;
 	}
 		
 	//najmnieszy slon
@@ -68,29 +151,36 @@ public class Main {
 				min = mass[i];
 			}
 		}
+		System.out.println("min: " + min);
 		return min;
 	}
 	
 	
 	//funkcja suma(C)
-	public static int massOfCycle(ArrayList<Integer> cycl) {
+	public static int massOfCycle(ArrayList<Integer> cycl, int[] mass) {
 		int sum = 0;
 		for (int i = 0; i < cycl.size(); i++) {
 			sum += mass[cycl.get(i) - 1];			
 		}
+		System.out.println("suma(C): " + sum);
 		return sum;
 	}
 	
 	//funkcja min(C)
-	public static int minInCycle(ArrayList<Integer> cycl) {
+	public static int minInCycle(ArrayList<Integer> cycl, int[] mass) {
 		ArrayList<Integer> masses = new ArrayList<Integer>();
 		for (int i = 0; i < cycl.size(); i++) {
 			masses.add(mass[cycl.get(i) - 1]);
 		}
+		System.out.println("min(C): " + Collections.min(masses));
 		return Collections.min(masses);
 	}
 	
-	public static ArrayList<ArrayList<Integer>> crCycles() {
+	public static ArrayList<ArrayList<Integer>> crCycles(int[] perm, int d) {
+		ArrayList<Integer> cycl = new ArrayList<Integer>();
+		ArrayList<Integer> cyclAux = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
+		
 		boolean[] cycles = new boolean[d];
 		int c = 0;
 		int x = 0;
@@ -103,7 +193,6 @@ public class Main {
 				while (!cycles[x - 1]) {
 					cycles[x - 1] = true;
 					cycl.add(x);
-					System.out.println("x: " + x + ", perm[x - 1]: " + perm[x - 1]);
 					System.out.println(cycl);
 					System.out.println(Arrays.toString(cycles));
 					x = perm[x - 1];
@@ -174,6 +263,7 @@ public class Main {
 				min = arr[i];
 			}
 		}
+		
 		return min;
 	}
 	
@@ -213,15 +303,7 @@ public class Main {
 		return arr;
 	}
 	
-	public static boolean[] validator(boolean[] validatePos) {
-		for (int i = 0; i < validatePos.length; i++) {
-			if (inSetting[i] == outSetting[i]) {
-//				validatePos[i] = true;
-				validatePos[inSetting[i] - 1] = true;
-			}
-		}
-		return validatePos;
-	}
+
 
 	public static int countTrue(boolean[] validatePos) {
 		int counter = 0;
@@ -235,6 +317,7 @@ public class Main {
 	
 	public static int[] permutations(int[] inSetting, int[] outSetting) {
 		
+		int d = inSetting.length;
 		//permutacje
 		int[] perm = new int[d];
 		for (int i = 0; i < d; i++) {
