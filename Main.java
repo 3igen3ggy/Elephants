@@ -1,47 +1,111 @@
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Main {
 
 	static int m, n;
 	static int d = 6;
 	static int[] mass = {2400, 2000, 1200, 2400, 1600, 4000};
+	static int min = min(mass);
 	static int[] inSetting = {1, 4, 5, 3, 6, 2};
 	static int[] outSetting = {5, 3, 2, 4, 6, 1};
-	
+	static ArrayList<Integer> cycl = new ArrayList<Integer>();
+	static ArrayList<Integer> cyclAux = new ArrayList<Integer>();
+	static ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
 
-		
+	//permutacje
+	static int[] perm = permutations(inSetting, outSetting);
+	
+	
+	
+	
 	public static void main(String[] args) {
+		int costSum = 0;
 		
-		boolean[] cycles = new boolean[d];
-//		boolean[] onRightPos = new boolean[d];
-//		onRightPos = validator(onRightPos); //cell is true if elephant is on its destination place
-//		int counter = countTrue(onRightPos); //nr of elephants on their place
-		System.out.println(Arrays.toString(cycles));
-		
-		//permutacje
-		int[] perm = permutations(inSetting, outSetting);
 		System.out.println(Arrays.toString(perm));
 		
 		//rozklad na cykle proste
 		
-		ArrayList<Integer> cycl = new ArrayList<Integer>();
-		ArrayList<Integer> cyclAux = new ArrayList<Integer>();
-		ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
+		ArrayList<ArrayList<Integer>> allCycl = crCycles();
+		System.out.println(allCycl);
 		
+		for (int i = 0; i < allCycl.size(); i++) {
+			
+			costSum += cost(allCycl.get(i));
+			
+		}
+		System.out.println(costSum);
+		
+		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	}
+	
+	public static int cost(ArrayList<Integer> cycl) {
+		
+		int method1 = method1Cost(cycl);
+		int method2 = method2Cost(cycl);
+		
+		if (method1 < method2) {
+			return method1;
+		} else {
+			return method2;
+		}	
+	}
+	
+	public static int method1Cost (ArrayList<Integer> cycl) {
+		return massOfCycle(cycl) + (cycl.size() - 2) * minInCycle(cycl);
+	}
+	
+	public static int method2Cost (ArrayList<Integer> cycl) {
+		return massOfCycle(cycl) + minInCycle(cycl) + (cycl.size() + 1) * min;
+	}
+		
+	//najmnieszy slon
+	public static int min(int[] mass) {
+		int min = mass[0];
+		for (int i = 0; i < mass.length; i++) {	
+			if (mass[i] < min) {
+				min = mass[i];
+			}
+		}
+		return min;
+	}
+	
+	
+	//funkcja suma(C)
+	public static int massOfCycle(ArrayList<Integer> cycl) {
+		int sum = 0;
+		for (int i = 0; i < cycl.size(); i++) {
+			sum += mass[cycl.get(i) - 1];			
+		}
+		return sum;
+	}
+	
+	//funkcja min(C)
+	public static int minInCycle(ArrayList<Integer> cycl) {
+		ArrayList<Integer> masses = new ArrayList<Integer>();
+		for (int i = 0; i < cycl.size(); i++) {
+			masses.add(mass[cycl.get(i) - 1]);
+		}
+		return Collections.min(masses);
+	}
+	
+	public static ArrayList<ArrayList<Integer>> crCycles() {
+		boolean[] cycles = new boolean[d];
 		int c = 0;
 		int x = 0;
 		for (int i = 1; i <= d; i++) {
 			
-			if (!cycles[i]) {
+			if (!cycles[i - 1]) {
 				c++;
 				x = i;
 
-				while (!cycles[x]) {
-					cycles[x] = true;
+				while (!cycles[x - 1]) {
+					cycles[x - 1] = true;
 					cycl.add(x);
 					System.out.println("x: " + x + ", perm[x - 1]: " + perm[x - 1]);
 					System.out.println(cycl);
+					System.out.println(Arrays.toString(cycles));
 					x = perm[x - 1];
 
 				}
@@ -50,21 +114,10 @@ public class Main {
 				cycl.clear();
 				
 			}
-			System.out.println("AllCycl: " + allCycl);
-			System.out.println(Arrays.toString(cycles));
 		}
-		
-	
-		
-		
-		
-		
-		
-		
-		
-		
-		
+		return allCycl;
 	}
+	
 	
 	public static int[] changeOrder(int[] in, int a, int b) {
 		int c = in[a];
