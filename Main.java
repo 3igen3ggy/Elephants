@@ -1,80 +1,68 @@
 import java.util.Arrays;
-
 import java.util.ArrayList;
 
 public class Main {
 
 	static int m, n;
-	static int d = 10;
-	static int[] mass = {3015, 4728, 4802, 4361, 135, 4444, 4313, 1413, 4581, 546};
-	static int[] inSetting = {3, 10, 1, 8, 9, 4, 2, 7, 6, 5};
-	static int[] outSetting = {4, 9, 5, 3, 1, 6, 10, 7, 8, 2};
+	static int d = 6;
+	static int[] mass = {2400, 2000, 1200, 2400, 1600, 4000};
+	static int[] inSetting = {1, 4, 5, 3, 6, 2};
+	static int[] outSetting = {5, 3, 2, 4, 6, 1};
 	
+
+		
 	public static void main(String[] args) {
 		
-//		int[] outAux = generateLinear(100);
-//		int[] inAux = mapper(outSetting, inSetting);
-//		System.out.println(Arrays.toString(inAux));
-//		System.out.println(Arrays.toString(outAux));
+		boolean[] cycles = new boolean[d];
+//		boolean[] onRightPos = new boolean[d];
+//		onRightPos = validator(onRightPos); //cell is true if elephant is on its destination place
+//		int counter = countTrue(onRightPos); //nr of elephants on their place
+		System.out.println(Arrays.toString(cycles));
 		
-		boolean[] validatePos = new boolean[d];
-		validatePos = validator(validatePos);
+		//permutacje
+		int[] perm = permutations(inSetting, outSetting);
+		System.out.println(Arrays.toString(perm));
 		
-		int[] massSorted = bubbleSort(mass);
-		int counter = countTrue(validatePos);
+		//rozklad na cykle proste
 		
-		int iteration = 0;
-		int effort = 0;
-		System.out.println("in: " + Arrays.toString(inSetting));
-		System.out.println("out: " + Arrays.toString(outSetting));
-		System.out.println(Arrays.toString(mass));
-		System.out.println(Arrays.toString(massSorted));
+		ArrayList<Integer> cycl = new ArrayList<Integer>();
+		ArrayList<Integer> cyclAux = new ArrayList<Integer>();
+		ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
 		
+		int c = 0;
+		int x = 0;
+		for (int i = 1; i <= d; i++) {
+			
+			if (!cycles[i]) {
+				c++;
+				x = i;
 
-		
-		
-		System.out.println();
-		System.out.println(Arrays.toString(inSetting));
-		System.out.println(Arrays.toString(validatePos));
-		System.out.println("Iteration: " + iteration + ", Counter: " + counter + ", Effort: " + effort);
-		
-		//i: the lightest unsorted elephant index
-		int i = 0;
-		
-		while (counter < d) {
-			iteration++;
-			System.out.println("i: " + i);
-			
-			
-			int light = finder(mass, massSorted[i]) + 1;
-			int lightIndex = finder(inSetting, light);
+				while (!cycles[x]) {
+					cycles[x] = true;
+					cycl.add(x);
+					System.out.println("x: " + x + ", perm[x - 1]: " + perm[x - 1]);
+					System.out.println(cycl);
+					x = perm[x - 1];
 
-			int valid = outSetting[lightIndex];
-			int validIndex = finder(inSetting, valid);
-			
-	
-			
-			effort += mass[light - 1] + mass[valid - 1];
-			
-			System.out.println("light: " + light + ", lightIndex: " + lightIndex + ", mass: " + mass[light - 1]);
-			System.out.println("valid: " + valid + ", validIndex: " + validIndex + ", mass: " + mass[valid - 1]);
-			inSetting = changeOrder(inSetting, lightIndex, validIndex);
-			
-			
-			validatePos[lightIndex] = true;
-			counter++;
-			
-				if (inSetting[validIndex] == outSetting[validIndex]) {
-					validatePos[validIndex] = true;
-					counter++;
 				}
-			System.out.println();
-			System.out.println(Arrays.toString(inSetting));
-			System.out.println(Arrays.toString(validatePos));
-			System.out.println("Iteration: " + iteration + ", Counter: " + counter + ", Effort: " + effort);
-
-			i++;
+				cyclAux = (ArrayList<Integer>) cycl.clone();
+				allCycl.add(cyclAux);
+				cycl.clear();
+				
+			}
+			System.out.println("AllCycl: " + allCycl);
+			System.out.println(Arrays.toString(cycles));
 		}
+		
+	
+		
+		
+		
+		
+		
+		
+		
+		
 		
 	}
 	
@@ -147,14 +135,7 @@ public class Main {
 		}
 	}
 	
-	//mass of particular elephant
-	public static int massOf(int n) {
-		return mass[n - 1];		
-	}
-	
-	public static int effort(int n, int m) {
-		return massOf(n) + massOf(m);
-	}
+
 	
 	public static int[] bubbleSort(int[] array) {
 		int i = 0;
@@ -182,7 +163,8 @@ public class Main {
 	public static boolean[] validator(boolean[] validatePos) {
 		for (int i = 0; i < validatePos.length; i++) {
 			if (inSetting[i] == outSetting[i]) {
-				validatePos[i] = true;
+//				validatePos[i] = true;
+				validatePos[inSetting[i] - 1] = true;
 			}
 		}
 		return validatePos;
@@ -196,5 +178,15 @@ public class Main {
 			}
 		}
 		return counter;
+	}
+	
+	public static int[] permutations(int[] inSetting, int[] outSetting) {
+		
+		//permutacje
+		int[] perm = new int[d];
+		for (int i = 0; i < d; i++) {
+		perm[i] = inSetting[finder(outSetting, i + 1)];			
+		}
+		return perm;
 	}
 }
