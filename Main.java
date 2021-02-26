@@ -8,47 +8,43 @@ import java.util.Collections;
 
 public class Main {
 
-
-
-	
-
-
-
-
+	static int m1 = 0;
+	static int m2 = 0;
 	
 	public static void main(String[] args) {
 		
 
 		ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
-
-		int[][] table = importFromFile("slo1.in");
+///////////////////////////////////////////////////////////////////////
+		int[][] table = importFromFile("slo6.in");  //INPUT FILE CHOICE
+///////////////////////////////////////////////////////////////////////	
+		System.out.println("\nFILE IMPORTED");
 		
 		int d = table[0][0];
 		int[] mass = table[1];
 		int[] inSetting = table[2];
 		int[] outSetting = table[3];
 		
-		
 		int min = min(mass);
+		
 		//permutacje
-		 int[] perm = permutations(inSetting, outSetting);
-		
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		int[] perm = permutations(inSetting, outSetting);
+		System.out.println("PERMUTATIONS CALCULATED");
+
 		int costSum = 0;
-		
-		System.out.println("Permutations: " + Arrays.toString(perm));
-		
+				
 		//rozklad na cykle proste
 		
 		allCycl = crCycles(perm, d);
-		System.out.println(allCycl);
+		System.out.println("SIMPLE CYCLES CALCULATED: " + allCycl.size());
 		
 		for (int i = 0; i < allCycl.size(); i++) {
 			
 			costSum += cost(allCycl.get(i), mass);
 			
 		}
-		System.out.println(costSum);
+		System.out.println("M1: " + m1 + ", M2: " + m2);
+		System.out.println("MIN EFFORT: " + costSum);
 		
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
@@ -105,11 +101,6 @@ public class Main {
 			}
 			int[] outSetting = Arrays.copyOf(outSettingAux, d);
 			table[3] = outSetting;
-					
-			System.out.println("d: " + d);
-			System.out.println("Masses: " + Arrays.toString(mass));
-			System.out.println("In: " + Arrays.toString(inSetting));
-			System.out.println("Out: " + Arrays.toString(outSetting));
 			
 			return table;
 			
@@ -127,11 +118,15 @@ public class Main {
 		int method1 = method1Cost(cycl, mass);
 		int method2 = method2Cost(cycl, mass);
 		
-		if (method1 < method2) {
+		if (method1 < method2 && cycl.size() != 1) {
+			m1++;
 			return method1;
-		} else {
+		} else if ((method1 >= method2 && cycl.size() != 1)) {
+			m2++;
 			return method2;
-		}	
+		}	else {
+			return 0;
+		}
 	}
 	
 	public static int method1Cost (ArrayList<Integer> cycl, int[] mass) {
@@ -151,7 +146,6 @@ public class Main {
 				min = mass[i];
 			}
 		}
-		System.out.println("min: " + min);
 		return min;
 	}
 	
@@ -162,7 +156,6 @@ public class Main {
 		for (int i = 0; i < cycl.size(); i++) {
 			sum += mass[cycl.get(i) - 1];			
 		}
-		System.out.println("suma(C): " + sum);
 		return sum;
 	}
 	
@@ -172,7 +165,6 @@ public class Main {
 		for (int i = 0; i < cycl.size(); i++) {
 			masses.add(mass[cycl.get(i) - 1]);
 		}
-		System.out.println("min(C): " + Collections.min(masses));
 		return Collections.min(masses);
 	}
 	
@@ -182,19 +174,15 @@ public class Main {
 		ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
 		
 		boolean[] cycles = new boolean[d];
-		int c = 0;
 		int x = 0;
 		for (int i = 1; i <= d; i++) {
 			
 			if (!cycles[i - 1]) {
-				c++;
 				x = i;
 
 				while (!cycles[x - 1]) {
 					cycles[x - 1] = true;
 					cycl.add(x);
-					System.out.println(cycl);
-					System.out.println(Arrays.toString(cycles));
 					x = perm[x - 1];
 
 				}
@@ -240,20 +228,7 @@ public class Main {
 		}
 		return -1;	
 	}
-	// Generate auxiliary array of initial setting such,
-	// that when sorted ascending it will answer the question
-	// given in the exercise
-	public static int[] mapper(int[] outSetting, int[] inSetting) {
-		
-		int d = inSetting.length;
-		int[] inAux = new int[d];
-		
-		for (int i = 0; i < d; i++) {
-			inAux[i] = 1 + finder(outSetting, inSetting[i]);
-		}
-		return inAux;
-		
-	}
+
 	
 	//find minimal value within an array
 	public static int minValue(int[] arr) {
@@ -304,16 +279,6 @@ public class Main {
 	}
 	
 
-
-	public static int countTrue(boolean[] validatePos) {
-		int counter = 0;
-		for (int i = 0; i < validatePos.length; i++) {
-			if (validatePos[i]) {
-				counter++;
-			}
-		}
-		return counter;
-	}
 	
 	public static int[] permutations(int[] inSetting, int[] outSetting) {
 		
