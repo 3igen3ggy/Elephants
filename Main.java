@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.math.BigInteger;
@@ -11,9 +12,11 @@ public class Main {
 	public static void main(String[] args) {
 
 		ArrayList<ArrayList<Integer>> allCycl = new ArrayList<ArrayList<Integer>>();
+		
 ///////////////////////////////////////////////////////////////////////
-		int[][] table = importFromFile("slo8b");  //INPUT FILE CHOICE
-///////////////////////////////////////////////////////////////////////	
+		String filename = "slo1"; //////////////////INPUT FILE CHOICE
+///////////////////////////////////////////////////////////////////////
+		int[][] table = importFromFile(filename); 
 		System.out.println("\nFILE IMPORTED");
 		
 		int d = table[0][0];
@@ -34,12 +37,23 @@ public class Main {
 		BigInteger costSum = new BigInteger("0");
 		BigInteger aux = new BigInteger("0");
 		
-		for (int i = 0; i < allCycl.size(); i++) {
-			aux = aux.valueOf(cost(allCycl.get(i), mass));
-			costSum = costSum.add(aux);			
+		int cyclesAmount = allCycl.size();
+		
+		for (int j = 0; j < cyclesAmount; j++) {
+			aux = aux.valueOf(cost(allCycl.get(j), mass));
+			costSum = costSum.add(aux);
+			int x = j + 1;
+			System.out.println("j: (" + x + " / " + cyclesAmount + ")");
 		}
 		System.out.println("MIN EFFORT: " + costSum);
 		
+		
+		try {
+			exportToFile(filename, costSum);
+		} catch (FileNotFoundException e) {
+			
+			e.printStackTrace();
+		}
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 	//importing data from .in file
@@ -106,6 +120,15 @@ public class Main {
 		}
 		int[][] table = new int[1][1];
 		return table;
+	}
+	
+	//exporting to .out file
+	public static void exportToFile(String filename, BigInteger costSum) throws FileNotFoundException {
+		String workingDirectory = System.getProperty("user.dir") + "/src/";
+		String file = workingDirectory + filename + ".out";
+		PrintWriter pr = new PrintWriter(file);
+		pr.println(costSum);
+		pr.close();
 	}
 	
 	//calculate which method is more efficient and return its "effort" cost
@@ -209,8 +232,9 @@ public class Main {
 		//permutacje
 		int[] perm = new int[d];
 		for (int i = 0; i < d; i++) {
-		perm[i] = inSetting[finder(outSetting, i + 1)];			
-		System.out.println("i: (" + i + "/ " + d + ")");
+		perm[i] = inSetting[finder(outSetting, i + 1)];	
+		int x = i + 1;
+		System.out.println("i: (" + x + " / " + d + ")");
 		}
 		return perm;
 	}
