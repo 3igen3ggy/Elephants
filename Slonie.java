@@ -21,10 +21,23 @@ public class Slonie {
 	        System.exit(0);
 	    }
 		
-///////////////////////////////////////////////////////////////////////
-		String filename = args[0]; //////////////////INPUT FILE CHOICE
-///////////////////////////////////////////////////////////////////////
-		
+	    String filename = null;
+	    //two ways of passing file to a program:
+	    //1st java "usual" way: 
+	    // (in command line)
+	    // program.jar slo1.in
+	    //2nd - a way expected from recruiter:
+	    // (in command line)
+	    // program.jar < slo1.in
+	    if (args.length == 1) {
+	    	filename = args[0];
+	    } else if (args.length == 2) {
+		    	filename = args[1];
+	    } else {
+	    	System.out.println("Input error!");
+	        System.exit(0);
+	    }
+	    		
 		//convert file data to a matrix
 		int[][] table = importFromFile(filename);
 		
@@ -50,7 +63,7 @@ public class Slonie {
 		int cyclesAmount = allCycl.size();
 		
 		for (int j = 0; j < cyclesAmount; j++) {
-			aux = aux.valueOf(cost(allCycl.get(j), mass));
+			aux = BigInteger.valueOf(cost(allCycl.get(j), mass));
 			costSum = costSum.add(aux);
 //			int x = j + 1;
 //			System.out.println("j: (" + x + " / " + cyclesAmount + ")");
@@ -198,6 +211,7 @@ public class Slonie {
 	}
 	
 	//method gathering all the data about cycles into an ArrayList of ArrayList (matrix like)
+	@SuppressWarnings("unchecked")
 	public static ArrayList<ArrayList<Integer>> crCycles(int[] perm, int d) {
 		ArrayList<Integer> cycl = new ArrayList<Integer>();
 		ArrayList<Integer> cyclAux = new ArrayList<Integer>();
